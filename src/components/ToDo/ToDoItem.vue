@@ -1,18 +1,35 @@
 <template>
-  <label class="checkbox path">
-    <input
-      type="checkbox"
-      :value="toDo.isCompleted"
-      :checked="toDo.isCompleted === true"
-      @change="changeCompleted"
+  <div class="todoItem">
+    <label class="checkbox path">
+      <input
+        type="checkbox"
+        :value="toDo.isCompleted"
+        :checked="toDo.isCompleted === true"
+        @change="changeCompleted"
+        :disabled="toDo.isArchieved"
+      />
+      <svg viewBox="0 0 21 21">
+        <path
+          d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"
+        ></path>
+      </svg>
+    </label>
+    <label
+      :class="toDo.isArchieved ? 'todoItemName striked' : 'todoItemName'"
+      >{{ toDo.text }}</label
+    >
+    <img
+      src="@/assets/archive.svg"
+      v-if="!toDo.isArchieved"
+      @click="archieveItem"
     />
-    <svg viewBox="0 0 21 21">
-      <path
-        d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"
-      ></path>
-    </svg>
-    <label for="checkbox" @click="changeCompleted">{{ toDo.text }}</label>
-  </label>
+    <img
+      src="@/assets/plus-square.svg"
+      v-if="toDo.isArchieved"
+      @click="archieveItem"
+    />
+    <img src="@/assets/trash-2.svg" @click="deleteItem" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -27,10 +44,18 @@ export default class ToDoItem extends Vue {
   @Prop() private readonly toDo: ToDo;
 
   @Emit("changeFlag")
-  changeFlag(id: number) {}
+  changeFlag(id: number, action: string) {}
 
   changeCompleted(e: any) {
-    this.changeFlag(this.index);
+    this.changeFlag(this.index, "TOGGLE");
+  }
+
+  archieveItem(e: any) {
+    this.changeFlag(this.index, "ARCHIEVE");
+  }
+
+  deleteItem(e: any) {
+    this.changeFlag(this.index, "DELETE");
   }
 }
 </script>
@@ -38,9 +63,46 @@ export default class ToDoItem extends Vue {
 <style lang="scss">
 @import "@/styles/main";
 
+.todoItem {
+  display: flex;
+  flex-direction: row;
+  padding: 15px 0px;
+
+  &:not(:first-child) {
+    border-top: 1px solid darken(#fbc66b, 15%);
+  }
+
+  label {
+    text-align: left;
+    &:not(:first-child) {
+      margin-top: -4px;
+      padding-left: 10px;
+      font-size: 20px;
+    }
+  }
+
+  .todoItemName {
+    flex: 2;
+  }
+
+  .striked {
+    text-decoration: line-through;
+  }
+
+  img {
+    padding: 0px 5px;
+    margin-top: -4px;
+
+    &:active {
+      background: darken(#fbc66b, 15%);
+      border-radius: 4px;
+    }
+  }
+}
+
 .checkbox {
   --background: #fff;
-  --border: #d1d6ee;
+  --border: #e8ebf1;
   --border-hover: #bbc1e1;
   --border-active: #1e2235;
   --tick: #fff;
@@ -80,8 +142,7 @@ export default class ToDoItem extends Vue {
     stroke-linejoin: round;
     stroke: var(--stroke, var(--border-active));
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0px;
     width: 21px;
     height: 21px;
     transform: scale(var(--scale, 1)) translateZ(0);
