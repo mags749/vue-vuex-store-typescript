@@ -1,4 +1,0 @@
-const ADD_TODO = "ADD_TODO",
-  UPDATE_TODO = "UPDATE_TODO";
-
-export { ADD_TODO, UPDATE_TODO };
