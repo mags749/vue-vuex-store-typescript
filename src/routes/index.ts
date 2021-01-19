@@ -7,10 +7,11 @@ Vue.use(Router);
 const router = new Router({
   routes: [
     {
-      path: "/",
+      path: "/todo",
       name: "todo",
       component: ToDo,
     },
+    { path: "*", redirect: "/todo" },
   ],
   mode: "history",
   linkActiveClass: "active",
