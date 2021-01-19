@@ -24,8 +24,12 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { Action, State } from "vuex-class";
 import ToDo from "@/model/ToDo";
 import ToDoItem from "./ToDoItem.vue";
+import ToDos from "@/model/ToDos";
+
+const namespace: string = "todos";
 
 @Component({
   components: {
@@ -33,8 +37,14 @@ import ToDoItem from "./ToDoItem.vue";
   },
 })
 export default class ToDoList extends Vue {
+  @Action("updateToDo", { namespace })
+  updateToDo: any;
+  @Action("addToDo", { namespace })
+  addToDo: any;
+  @State((state) => state.todos.toDoList)
+  entries: Array<ToDo>;
+
   todoName: string = "";
-  entries: Array<ToDo> = [];
 
   formSubmit(e: any) {
     e.preventDefault();
@@ -43,23 +53,25 @@ export default class ToDoList extends Vue {
       text: this.todoName,
       isArchieved: false,
     };
-    this.entries.push(todo);
+    this.addToDo(todo);
     this.todoName = "";
   }
 
   changeState(id: number, action: string): void {
+    const toDoList = [...this.entries];
     switch (action) {
       case "TOGGLE":
-        this.entries[id].isCompleted = !this.entries[id].isCompleted;
+        toDoList[id].isCompleted = !toDoList[id].isCompleted;
         break;
       case "ARCHIEVE":
-        this.entries[id].isArchieved = !this.entries[id].isArchieved;
+        toDoList[id].isArchieved = !toDoList[id].isArchieved;
         break;
       case "DELETE":
-        this.entries.splice(id);
+        toDoList.splice(id, 1);
       default:
         break;
     }
+    this.updateToDo({ toDoList });
   }
 }
 </script>
